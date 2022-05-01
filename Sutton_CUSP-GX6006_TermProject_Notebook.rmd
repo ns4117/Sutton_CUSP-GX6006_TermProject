@@ -341,7 +341,7 @@ ggplot(monthly, aes(x = installed, y = value)) +
         subtitle = "Per Month"
     ) +
     scale_x_date(
-        breaks = "1 year", minor_breaks = "2 months",
+        breaks = "1 year", minor_breaks = "1 month",
         date_labels = "%Y"
     ) +
     theme_bw() +
