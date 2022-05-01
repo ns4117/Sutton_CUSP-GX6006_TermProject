@@ -38,11 +38,11 @@ benches$the_geom.coordinates <- NULL
 # export to csv, import into QGIS and create shapefile using lat, long
 # write.csv(benches, "data/benches.csv")
 
-city <- st_read("data/boros.shp")
+city <- st_read("data/gis/boros.shp")
 # https://data.cityofnewyork.us/City-Government/Borough-Boundaries/tqmj-j8zm 
-districts <- st_read("data/districts.shp") # community districts
+districts <- st_read("data/gis/districts.shp") # community districts
 # https://www1.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page 
-benches <- st_read("data/benches.shp") 
+benches <- st_read("data/gis/benches.shp") 
 # same data as before but with geometry added (add'l column)
 
 # remove unnecessary add'l columns
@@ -486,7 +486,7 @@ wout_busroute <- benches[benches$busroute == "Not Applicable",]
 
 # compilation of shape.txt files for each borough
 # http://web.mta.info/developers/developer-data-terms.html#data
-busroutes <-  st_read("data/lines_5boros.shp") 
+busroutes <-  st_read("data/gtfs/lines_5boros.shp") 
 busroutes$color <- "blue" # used below with scale_color_identity
 
 ggplot() +
@@ -506,10 +506,7 @@ ggplot() +
         labels = "Bench",
         guide = "legend"
     ) +
-    labs(
-        title = "Proximity of DOT-Installed Benches to MTA Bus Routes",
-        subtitle = "Benches (Brown) with City Bus Routes (Blue)"
-    ) +
+    ggtitle("Proximity of DOT-Installed Benches to MTA Bus Routes") +
     geom_sf(data = city, color = "black", fill = NA) + # boros outline
     theme_void()
 
@@ -655,9 +652,35 @@ bmap <- ggplot() +
     ) +
     theme_void()
 
+# map that gives info about benches w data about business *i*mprovement districts
+imap <- ggplot() +
+    geom_sf(data = districts) + # district boundaries
+    geom_sf(data = city, color = "black", fill = NA) + # boros outline
+    geom_sf(
+        data = no_bid, fill = "black",
+        color = "black", shape = 21, size = 0.5
+    ) +
+    geom_sf_interactive(
+        data = in_bid, 
+        aes(
+            fill = bid, tooltip = paste0(bid, " BID"), data_id = benchid
+        ),
+        color = "black", shape = 21, size = 1
+    ) +
+    labs(
+        title = "Placement of Benches in Business Improvement Districts (BIDs)",
+        subtitle = "Benches in BIDs (Colored) vs Not in BIDs (Black)",
+        caption = "(Benches colored according to BID that placed them)"
+    ) +
+    guides(fill = "none") +
+    theme_void()
+
 shinyApp(
     ui = fluidPage(
         tabsetPanel(
+            tabPanel("BIDs", 
+                girafeOutput("bids")
+            ),
             tabPanel("Seniors", 
                 girafeOutput("seniors")
             ),
@@ -676,6 +699,13 @@ shinyApp(
     ),
 
     server = function(input, output, session) {
+        output$bids <- renderGirafe({
+            girafe(ggobj = imap) %>%
+            girafe_options(
+                opts_zoom(min = 1, max = 4)
+            )
+        })
+
         output$seniors <- renderGirafe({
             girafe(ggobj = smap) %>%
             girafe_options(
