@@ -485,6 +485,7 @@ with_busroute <- benches[benches$busroute != "Not Applicable",]
 wout_busroute <- benches[benches$busroute == "Not Applicable",]
 
 # compilation of shape.txt files for each borough
+# http://web.mta.info/developers/developer-data-terms.html#data
 busroutes <-  st_read("data/lines_5boros.shp") 
 busroutes$color <- "blue" # used below with scale_color_identity
 
