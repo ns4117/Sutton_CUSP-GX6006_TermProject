@@ -25,4 +25,6 @@ Steps required for data *before* the analysis:
   * Save the routes shapefile and use in R
 *  Download the demographics data from the URL (data is by community district)
 
+(Note: some data are downloaded from a website them imported in, while others are read in directly from the URL. Any data mentioned in the R notebook that is not included in the `data` folder has been read from an API/URL.)
+
 After downloading and converting the data as necessary, the remainder of the steps required to produce the visualizations are shown in the R Notebook. 
